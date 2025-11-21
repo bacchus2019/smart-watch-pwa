@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Умные часы — Время и Дата</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" type="image/png" />
+  <meta name="theme-color" content="#000000" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .watch-container {
+      width: 280px;
+      height: 360px;
+      background: #000;
+      border-radius: 28px;
+      border: 10px solid #1c1c1e;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7), inset 0 0 10px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .time {
+      font-size: 4em;
+      font-weight: 500;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+
+    .date {
+      font-size: 1.1em;
+      color: #888;
+      text-transform: capitalize;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .year {
+      font-size: 1.4em;
+      color: #00eaff;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 8px rgba(0, 234, 255, 0.4);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .second-tick {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 6px;
+      height: 6px;
+      background: #00eaff;
+      border-radius: 50%;
+      opacity: 0.9;
+      filter: blur(0.5px);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 0.4; }
+      50%, 100% { opacity: 0.9; }
+    }
+
+    .alarm-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 10px;
+      width: 90%;
+    }
+
+    .alarm-set {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .alarm-set input {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      color: #00eaff;
+      text-align: center;
+      width: 45px;
+      font-size: 1em;
+      padding: 5px;
+      border-radius: 6px;
+    }
+
+    .alarm-set button {
+      background: #00eaff;
+      color: #000;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.8em;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .alarm-set button:hover {
+      background: #00d0d0;
+    }
+
+    .alarm-status {
+      font-size: 0.75em;
+      color: #888;
+      text-align: center;
+      min-height: 1.2em;
+    }
+
+    .alarm-active {
+      color: #ff595e !important;
+      font-weight: 500;
+    }
+
+    .offline {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7em;
+      color: #ff4b4b;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 4px 10px;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .offline.show {
+      opacity: 1;
+    }
+
+    body, .watch-container {
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="watch-container">
+    <div class="second-tick" id="tick"></div>
+
+    <div class="time" id="time">00:00</div>
+    <div class="date" id="date">Понедельник, 1 января</div>
+    <div class="year" id="year">2025 год</div>
+
+    <div class="alarm-controls">
+      <div class="alarm-set">
+        <input type="number" id="hour" min="0" max="23" placeholder="ЧЧ" />
+        <span>:</span>
+        <input type="number" id="minute" min="0" max="59" placeholder="ММ" />
+        <button id="set-alarm">Установить</button>
+      </div>
+      <div class="alarm-status" id="alarm-status">Будильник не установлен</div>
+    </div>
+
+    <div class="offline" id="offline">Офлайн</div>
+  </div>
+
+  <script>
+    // Обновление времени, даты и года
+    function updateClock() {
+      const now = new Date();
+
+      const time = now.toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+
+      const date = now.toLocaleDateString('ru-RU', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      }).replace(/^\w/, c => c.toUpperCase());
+
+      const year = `${now.getFullYear()} год`;
+
+      document.getElementById('time').textContent = time;
+      document.getElementById('date').textContent = date;
+      document.getElementById('year').textContent = year;
+
+      checkAlarm(now); // Проверяем будильник каждую секунду
+    }
+
+    // --- Переменные объявлены до первого вызова ---
+    let alarmTime = null;
+    const alarmStatus = document.getElementById('alarm-status');
+    const hourInput = document.getElementById('hour');
+    const minuteInput = document.getElementById('minute');
+
+    // Запуск часов
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Установка будильника
+    document.getElementById('set-alarm').addEventListener('click', () => {
+      const hour = parseInt(hourInput.value);
+      const minute = parseInt(minuteInput.value);
+
+      if (isNaN(hour) || hour < 0 || hour > 23 || isNaN(minute) || minute < 0 || minute > 59) {
+        alert('Пожалуйста, введите корректное время!');
+        return;
+      }
+
+      alarmTime = { hour, minute };
+      alarmStatus.textContent = `Будильник установлен на ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      alarmStatus.classList.add('alarm-active');
+
+      hourInput.value = '';
+      minuteInput.value = '';
+    });
+
+    // Проверка срабатывания будильника
+    function checkAlarm(now) {
+      if (!alarmTime) return;
+
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+
+      if (currentHour === alarmTime.hour && currentMinute === alarmTime.minute) {
+        alarmStatus.textContent = '⏰ Будильник! С добрым утром!';
+        playAlarmSound();
+
+        // Автоматическое отключение через 10 секунд
+        setTimeout(() => {
+          alarmTime = null;
+          alarmStatus.textContent = 'Будильник не установлен';
+          alarmStatus.classList.remove('alarm-active');
+        }, 10000);
+      }
+    }
+
+    // Простой звук будильника
+    function playAlarmSound() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), 1000);
+      } catch (e) {
+        console.warn('Не удалось воспроизвести звук:', e);
+      }
+    }
+
+    // Регистрация Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+      });
+    }
+
+    // Офлайн-индикатор
+    const offlineEl = document.getElementById('offline');
+    window.addEventListener('online', () => offlineEl.classList.remove('show'));
+    window.addEventListener('offline', () => offlineEl.classList.add('show'));
+  </script>
+</body>
+</html>
