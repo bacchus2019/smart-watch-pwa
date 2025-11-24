@@ -8,8 +8,10 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" type="image/png" />
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Умные часы с 3D-эффектами и анимацией" />
+  <meta name="description" content="Умные часы в ультрасовременном стиле с 3D-эффектами и неоном" />
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400&display=swap');
+
     * {
       margin: 0;
       padding: 0;
@@ -18,9 +20,9 @@
     }
 
     body {
-      background: linear-gradient(145deg, #0a0a14 0%, #1a1a2e 100%);
+      background: linear-gradient(145deg, #08081a 0%, #0f1a30 50%, #050a15 100%);
       color: #fff;
-      font-family: 'Helvetica Neue', 'Arial', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       height: 100vh;
       width: 100vw;
       display: flex;
@@ -28,8 +30,18 @@
       align-items: center;
       overflow: hidden;
       touch-action: none;
-      perspective: 1000px;
+      perspective: 1200px;
       position: relative;
+    }
+
+    .noise {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iLjA1IiBkPSJNMCAwaDMwMHYzMDBIMHoiLz48L3N2Zz4=');
+      opacity: 0.25;
+      z-index: 1;
+      pointer-events: none;
     }
 
     .scene {
@@ -43,29 +55,30 @@
     }
 
     .watch {
-      width: 90vmin;
-      max-width: 380px;
+      width: 92vmin;
+      max-width: 390px;
       aspect-ratio: 9 / 12.5;
-      background: rgba(30, 30, 30, 0.7);
-      backdrop-filter: blur(30px);
-      border-radius: 50px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(30, 30, 40, 0.75);
+      backdrop-filter: blur(35px);
+      border-radius: 54px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
       box-shadow: 
-        0 30px 70px rgba(0, 0, 0, 0.6),
-        0 0 80px rgba(0, 212, 255, 0.25),
-        inset 0 2px 15px rgba(255, 255, 255, 0.1);
+        0 35px 90px rgba(0, 0, 0, 0.7),
+        0 0 100px rgba(0, 212, 255, 0.3),
+        inset 0 2px 20px rgba(255, 255, 255, 0.08),
+        0 0 0 1px rgba(106, 17, 203, 0.2);
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 16vmin 10vmin 13vmin;
+      padding: 17vmin 11vmin 14vmin;
       z-index: 10;
       overflow: hidden;
       transform-style: preserve-3d;
-      transform: rotateX(12deg) scale(1);
-      transition: transform 0.3s ease-out;
+      transform: rotateX(14deg) rotateY(0deg) scale(1);
+      transition: transform 0.3s cubic-bezier(0.25, 0.75, 0.5, 1.2);
       cursor: pointer;
     }
 
@@ -76,23 +89,32 @@
       width: 100%; height: 100%;
       background: radial-gradient(
         circle at 30% 15%,
-        rgba(106, 17, 203, 0.35),
-        transparent 60%
+        rgba(106, 17, 203, 0.4),
+        transparent 65%
       );
-      opacity: 0.4;
-      filter: blur(2px);
+      opacity: 0.3;
       z-index: -1;
     }
 
     .watch::after {
       content: '';
       position: absolute;
-      top: 15px; left: 15px; right: 15px; bottom: 15px;
-      border-radius: 46px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(20, 20, 20, 0.4);
+      top: 18px; left: 18px; right: 18px; bottom: 18px;
+      border-radius: 50px;
+      background: rgba(10, 15, 25, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.05);
       z-index: 1;
+    }
+
+    .watch-glass {
+      position: absolute;
+      top: 8px; left: 8px; right: 8px; bottom: 8px;
+      border-radius: 48px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+      z-index: 2;
+      backdrop-filter: blur(2px);
+      pointer-events: none;
     }
 
     .watch-3d {
@@ -107,21 +129,22 @@
 
     .watch-3d .edge {
       position: absolute;
-      background: linear-gradient(90deg, rgba(106, 17, 203, 0.4), rgba(0, 212, 255, 0.6));
-      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-      opacity: 0.6;
+      background: linear-gradient(90deg, rgba(106, 17, 203, 0.5), rgba(0, 212, 255, 0.7));
+      box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+      opacity: 0.7;
+      border-radius: 2px;
     }
 
     .watch-3d .top, .watch-3d .bottom {
       width: 100%;
-      height: 6px;
+      height: 8px;
       left: 0;
     }
     .watch-3d .top { top: 0; transform: rotateX(90deg); }
     .watch-3d .bottom { bottom: 0; transform: rotateX(-90deg); }
 
     .watch-3d .left, .watch-3d .right {
-      width: 6px;
+      width: 8px;
       height: 100%;
       top: 0;
     }
@@ -129,59 +152,60 @@
     .watch-3d .right { right: 0; transform: rotateY(-90deg); }
 
     .brand {
-      font-size: clamp(1rem, 2.8vmin, 1.4rem);
-      color: rgba(255, 255, 255, 0.9);
+      font-size: clamp(1.1rem, 3vmin, 1.5rem);
+      color: rgba(255, 255, 255, 0.95);
       text-transform: uppercase;
-      letter-spacing: 2.5px;
+      letter-spacing: 3px;
       font-weight: 500;
-      margin-bottom: 2.5vh;
+      margin-bottom: 2.8vh;
       position: absolute;
-      top: 8%;
+      top: 8.5%;
       left: 50%;
-      transform: translateX(-50%) translateZ(10px);
+      transform: translateX(-50%) translateZ(20px);
       z-index: 20;
       text-shadow: 
-        0 0 10px rgba(0, 212, 255, 0.5),
-        0 1px 2px rgba(0, 0, 0, 0.8);
-      font-family: 'Courier New', monospace;
-      opacity: 0.95;
+        0 0 15px rgba(0, 212, 255, 0.7),
+        0 1px 3px rgba(0, 0, 0, 0.9);
+      font-family: 'Orbitron', sans-serif;
+      opacity: 1;
     }
 
-    .brand::before, .brand::after {
-      content: '✦';
-      margin: 0 8px;
-      opacity: 0.7;
-      text-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
+    .brand span {
+      font-weight: 700;
+      color: #00d4ff;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
     }
 
     .time {
-      font-size: clamp(2.8rem, 11vmin, 5.6rem);
-      font-weight: 200;
-      letter-spacing: -3px;
+      font-size: clamp(3rem, 11.5vmin, 6rem);
+      font-weight: 500;
+      letter-spacing: -3.5px;
       color: #ffffff;
-      margin: 0 0 5vh 0;
+      margin: 0 0 5.5vh 0;
       line-height: 1;
       text-shadow: 
-        0 5px 20px rgba(0, 0, 0, 0.7),
-        0 0 30px rgba(0, 212, 255, 0.5);
+        0 6px 25px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(0, 212, 255, 0.6);
       position: relative;
       width: 100%;
       z-index: 20;
-      transform: translateZ(20px);
+      transform: translateZ(30px);
+      font-family: 'Orbitron', sans-serif;
+      font-variant-numeric: tabular-nums;
     }
 
     .time::after {
       content: '';
       position: absolute;
-      bottom: -10px;
+      bottom: -12px;
       left: 50%;
       transform: translateX(-50%);
-      width: 80%;
-      height: 3px;
+      width: 85%;
+      height: 4px;
       background: linear-gradient(90deg, transparent, #00d4ff, transparent);
-      box-shadow: 0 0 15px rgba(0, 212, 255, 0.7);
-      border-radius: 3px;
-      transform: translateZ(5px);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+      border-radius: 4px;
+      transform: translateZ(10px);
     }
 
     .date-container {
@@ -190,68 +214,73 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      margin-bottom: 5vh;
+      margin-bottom: 5.5vh;
       z-index: 20;
-      transform: translateZ(15px);
+      transform: translateZ(20px);
     }
 
     .weekday {
-      font-size: clamp(1.7rem, 4.5vmin, 2.5rem);
-      color: rgba(255, 255, 255, 0.99);
+      font-size: clamp(1.8rem, 4.7vmin, 2.7rem);
+      color: rgba(255, 255, 255, 1);
       text-transform: capitalize;
       font-weight: 500;
-      letter-spacing: 1.5px;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-      margin-bottom: 2.2vh;
+      letter-spacing: 1.8px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+      margin-bottom: 2.5vh;
+      font-family: 'Orbitron', sans-serif;
     }
 
     .day-month {
-      font-size: clamp(1.4rem, 3.9vmin, 2.1rem);
-      color: rgba(255, 255, 255, 0.9);
+      font-size: clamp(1.5rem, 4.1vmin, 2.3rem);
+      color: rgba(255, 255, 255, 0.95);
       text-transform: capitalize;
-      letter-spacing: 1.2px;
+      letter-spacing: 1.4px;
       font-weight: 400;
-      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
     }
 
     .year {
-      font-size: clamp(2.2rem, 7.8vmin, 4rem);
-      color: rgba(255, 255, 255, 0.99);
+      font-size: clamp(2.4rem, 8.5vmin, 4.4rem);
+      color: rgba(255, 255, 255, 1);
       margin: 0;
-      font-weight: 300;
-      letter-spacing: 5px;
+      font-weight: 500;
+      letter-spacing: 6px;
       text-shadow: 
-        0 5px 25px rgba(0, 212, 255, 0.6),
-        0 0 40px rgba(0, 212, 255, 0.3);
+        0 6px 30px rgba(0, 212, 255, 0.7),
+        0 0 50px rgba(0, 212, 255, 0.35);
       z-index: 20;
-      font-family: 'Courier New', monospace;
-      transform: translateZ(18px);
+      font-family: 'Orbitron', sans-serif;
+      transform: translateZ(25px);
+      text-shadow: 
+        0 6px 30px rgba(0, 212, 255, 0.7),
+        0 0 50px rgba(0, 212, 255, 0.35),
+        0 0 80px rgba(106, 17, 203, 0.4);
     }
 
     .second-tick {
       position: absolute;
-      top: 7%;
-      right: 7%;
-      width: 3.8vmin;
-      height: 3.8vmin;
+      top: 7.5%;
+      right: 7.5%;
+      width: 4vmin;
+      height: 4vmin;
       background: linear-gradient(135deg, #00d4ff, #0077ff);
       border-radius: 50%;
       box-shadow: 
-        0 0 25px rgba(0, 212, 255, 0.8),
-        0 0 40px rgba(0, 212, 255, 0.4);
-      animation: pulse 1.3s ease-in-out infinite;
+        0 0 30px rgba(0, 212, 255, 0.9),
+        0 0 50px rgba(0, 212, 255, 0.5);
+      animation: pulse 1.2s ease-in-out infinite;
       z-index: 20;
-      filter: blur(0.5px);
-      transform: translateZ(10px);
+      filter: blur(0.6px);
+      transform: translateZ(20px);
     }
 
     @keyframes pulse {
       0%, 100% {
-        transform: scale(1) rotate(0deg) translateZ(5px);
+        transform: scale(1) rotate(0deg) translateZ(10px);
         opacity: 0.9;
       }
       50% {
-        transform: scale(1.45) rotate(12deg) translateZ(8px);
+        transform: scale(1.5) rotate(15deg) translateZ(12px);
         opacity: 1;
       }
     }
@@ -267,12 +296,12 @@
 
     .particle {
       position: absolute;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.3);
       border-radius: 50%;
       opacity: 0;
       pointer-events: none;
-      animation: float 8s infinite ease-in-out;
-      filter: blur(1.2px);
+      animation: float 9s infinite ease-in-out;
+      filter: blur(1.5px);
       transform: translateZ(0);
     }
 
@@ -282,10 +311,10 @@
         opacity: 0;
       }
       10%, 90% {
-        opacity: 0.8;
+        opacity: 0.9;
       }
       100% {
-        transform: translateY(-150vh) rotate(1080deg) translateZ(0);
+        transform: translateY(-180vh) rotate(1440deg) translateZ(0);
         opacity: 0;
       }
     }
@@ -295,52 +324,83 @@
       top: 48%;
       left: 10%;
       width: 80%;
-      height: 1.5px;
-      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.6), transparent);
-      filter: blur(0.8px);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.8), transparent);
+      filter: blur(1px);
       z-index: 6;
-      animation: glowPulse 2s ease-in-out infinite alternate;
+      animation: glowPulse 1.8s ease-in-out infinite alternate;
       transform: translateZ(0);
     }
 
     @keyframes glowPulse {
-      from { opacity: 0.5; }
-      to { opacity: 0.9; }
+      from { opacity: 0.6; }
+      to { opacity: 1; }
     }
 
     .reflection {
       position: absolute;
-      top: 15%;
-      left: 15%;
-      width: 40%;
-      height: 20%;
+      top: 16%;
+      left: 16%;
+      width: 45%;
+      height: 25%;
       background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15), 
-        rgba(255, 255, 255, 0.05) 70%, 
+        rgba(255, 255, 255, 0.25), 
+        rgba(255, 255, 255, 0.08) 70%, 
         transparent);
       border-radius: 50%;
-      transform: rotate(-30deg) translateZ(1px);
+      transform: rotate(-35deg) translateZ(5px);
       z-index: 3;
       pointer-events: none;
-      filter: blur(1px);
+      filter: blur(2px);
     }
 
     .highlight {
       position: absolute;
       top: 18%;
       left: 18%;
-      width: 15%;
-      height: 15%;
-      background: rgba(255, 255, 255, 0.08);
+      width: 20%;
+      height: 20%;
+      background: rgba(255, 255, 255, 0.12);
       border-radius: 50%;
-      box-shadow: 0 0 30px 10px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 40px 15px rgba(255, 255, 255, 0.08);
       z-index: 4;
       pointer-events: none;
-      transform: translateZ(2px);
+      transform: translateZ(8px);
+    }
+
+    .grid {
+      position: absolute;
+      top: 0; left: 0;
+      width: 200%; height: 200%;
+      background-image: 
+        linear-gradient(rgba(106, 17, 203, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(106, 17, 203, 0.1) 1px, transparent 1px);
+      background-size: 40px 40px;
+      transform: translate(-50%, -50%) rotateX(70deg) scale(0.7);
+      opacity: 0.3;
+      z-index: 0;
+      pointer-events: none;
+      filter: blur(0.5px);
+    }
+
+    .neon-border {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 54px;
+      z-index: 1;
+      pointer-events: none;
+      background: linear-gradient(145deg, rgba(106, 17, 203, 0.3), rgba(0, 212, 255, 0.3));
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+      opacity: 0.6;
+      filter: blur(3px);
     }
   </style>
 </head>
 <body>
+  <div class="noise"></div>
+  <div class="grid"></div>
+
   <div class="scene" id="scene">
     <div class="watch-3d">
       <div class="edge top"></div>
@@ -353,9 +413,11 @@
     <div class="glow-line"></div>
     <div class="reflection"></div>
     <div class="highlight"></div>
+    <div class="neon-border"></div>
 
+    <div class="watch-glass"></div>
     <div class="watch" id="watch">
-      <div class="brand">ВремяОнлайн</div>
+      <div class="brand">Время<span>Онлайн</span></div>
       <div class="second-tick" id="tick"></div>
       <div class="time" id="time">00:00</div>
       <div class="date-container">
@@ -403,16 +465,16 @@
 
       // Создание частиц
       const particlesContainer = document.getElementById('particles');
-      const particleCount = 18;
+      const particleCount = 20;
 
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.classList.add('particle');
         
-        const size = Math.random() * 10 + 3;
+        const size = Math.random() * 12 + 4;
         const left = Math.random() * 100;
         const delay = Math.random() * 5;
-        const duration = Math.random() * 7 + 5;
+        const duration = Math.random() * 8 + 6;
 
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
@@ -426,34 +488,36 @@
 
       // Плавное появление часов
       watch.style.opacity = '0';
-      watch.style.transform = 'rotateX(30deg) scale(0.8)';
+      watch.style.transform = 'rotateX(40deg) scale(0.7)';
       setTimeout(() => {
-        watch.style.transition = 'all 1s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        watch.style.transition = 'all 1.2s cubic-bezier(0.2, 0.8, 0.3, 1.2)';
         watch.style.opacity = '1';
-        watch.style.transform = 'rotateX(12deg) scale(1)';
+        watch.style.transform = 'rotateX(14deg) rotateY(0deg) scale(1)';
       }, 300);
 
-      // 3D-эффект от движения мыши/пальца
+      // 3D-эффект от движения
       const handleMove = (e) => {
         const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
         
-        const xOffset = (x - window.innerWidth / 2) / 20;
-        const yOffset = (y - window.innerHeight / 2) / 20;
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        
+        const xOffset = (x - centerX) / 30;
+        const yOffset = (y - centerY) / 30;
 
-        watch.style.transform = `rotateX(${12 + yOffset * 0.5}deg) rotateY(${xOffset * 0.5}deg) scale(1)`;
+        watch.style.transform = `rotateX(${14 + yOffset * 0.6}deg) rotateY(${xOffset * 0.6}deg) scale(1.02)`;
       };
 
       document.addEventListener('mousemove', handleMove);
       document.addEventListener('touchmove', handleMove, { passive: true });
 
-      // Возврат в исходное положение
       document.addEventListener('mouseleave', () => {
-        watch.style.transform = 'rotateX(12deg) rotateY(0deg) scale(1)';
+        watch.style.transform = 'rotateX(14deg) rotateY(0deg) scale(1)';
       });
 
       document.addEventListener('touchend', () => {
-        watch.style.transform = 'rotateX(12deg) rotateY(0deg) scale(1)';
+        watch.style.transform = 'rotateX(14deg) rotateY(0deg) scale(1)';
       });
 
       // Регистрация Service Worker
