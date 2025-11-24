@@ -1,52 +1,51 @@
-const CACHE_NAME = 'pwa-cache-v1';
-const urlsToCache = ['/', '/index.html'];
+const CACHE_NAME = 'smart-watch-v1';
+const ASSETS_TO_CACHE = [
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting()) // Активировать сразу
+      .then((cache) => {
+        return cache.addAll(ASSETS_TO_CACHE)
+          .then(() => self.skipWaiting());
+      })
+      .catch(err => console.error('Кэширование не удалось:', err))
   );
 });
 
 self.addEventListener('activate', (event) => {
-  // Удаляем старые кэши
   event.waitUntil(
-    caches.keys().then((keyList) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keyList.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim(); // Берём контроль над страницами сразу
 });
 
 self.addEventListener('fetch', (event) => {
+  const { request } = event;
+
+  if (request.method !== 'GET') {
+    return event.respondWith(fetch(request));
+  }
+
   event.respondWith(
-    caches.match(event.request)
+    fetch(request)
+      .catch(() => caches.match(request))
       .then((response) => {
-        // Возвращаем кэш, если есть
         if (response) {
           return response;
         }
-        // Иначе делаем запрос
-        return fetch(event.request)
-          .then((networkResponse) => {
-            // Не все ресурсы можно кэшировать (напр. POST), поэтому проверяем
-            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-              return networkResponse;
-            }
-
-            // Кэшируем ответ для будущего использования
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => cache.put(event.request, responseToCache));
-            return networkResponse;
-          });
+        throw new Error('Ресурс не найден ни в сети, ни в кэше');
       })
   );
 });
